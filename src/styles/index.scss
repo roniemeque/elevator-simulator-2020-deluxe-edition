@@ -1,0 +1,68 @@
+@import "./reset.scss";
+@import "./colors.scss";
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.building {
+  position: relative;
+  padding: 10px;
+  background: $gray;
+  display: grid;
+  gap: 10px;
+  transition: opacity 0.4s;
+  &--invisible {
+    opacity: 0;
+  }
+}
+
+.floor {
+  height: 120px;
+  width: 120px;
+  background: $white;
+  position: relative;
+}
+
+.door {
+  background: $black;
+  position: absolute;
+  height: 50px;
+  width: 40px;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 4px solid $gray;
+  border-bottom: 0;
+  overflow: hidden;
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    background: $gray;
+    width: calc(50%);
+    height: 100%;
+    transition: all 0.5s;
+  }
+  &::before {
+    left: 0;
+  }
+  &::after {
+    right: 0;
+  }
+  &--open {
+    &::before {
+      left: -50%;
+    }
+    &::after {
+      right: -50%;
+    }
+  }
+}
+
+.shaft {
+  position: absolute;
+}
