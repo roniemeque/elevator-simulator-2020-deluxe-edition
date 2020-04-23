@@ -47,7 +47,15 @@ export default class Building {
   }
 
   setQueue(value: number[]) {
-    this.queue = value;
+    const withoutRepeated = value.reduce(
+      (total, current) =>
+        total.includes(current) ? total : [...total, current],
+      []
+    );
+
+    const sorted = withoutRepeated.sort((a, b) => (a > b ? 1 : -1));
+
+    this.queue = sorted;
   }
 
   setQueueWatcher(value: any) {
@@ -94,11 +102,11 @@ export default class Building {
       addToElement: this.getFoundationNode(),
     });
 
-    for (let index = this.getHeightInFloors() - 1; index >= 0; index--) {
+    for (let i = this.getHeightInFloors() - 1; i >= 0; i--) {
       const newFloorElement = createElement("div", {
         className: "floor",
         dataset: {
-          floor: `${index}`,
+          floor: `${i}`,
         },
         addToElement: buildingNode,
       });
@@ -108,7 +116,40 @@ export default class Building {
         addToElement: newFloorElement,
       });
 
-      if (!index) {
+      const callButtonElement = createElement("button", {
+        className: "call-button",
+        dataset: {
+          floor: `${i}`,
+        },
+        addToElement: newFloorElement,
+      });
+      callButtonElement.innerText = "call";
+      callButtonElement.addEventListener("click", (e) => {
+        const {
+          dataset: { floor },
+        } = e.target as HTMLElement;
+        this.pushElevatorButton(parseInt(floor, 10));
+      });
+
+      // adding buttons for other floors
+      for (let j = 0; j < this.getHeightInFloors(); j++) {
+        const callButtonElement = createElement("button", {
+          className: "floor-button",
+          dataset: {
+            floor: `${j}`,
+          },
+          addToElement: newFloorElement,
+        });
+        callButtonElement.innerText = `${!j ? "T" : j}`;
+        callButtonElement.addEventListener("click", (e) => {
+          const {
+            dataset: { floor },
+          } = e.target as HTMLElement;
+          this.pushElevatorButton(parseInt(floor, 10));
+        });
+      }
+
+      if (!i) {
         newDoorElement.classList.add("door--open");
       }
     }
