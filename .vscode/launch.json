@@ -13,6 +13,7 @@
       "breakOnLoad": true,
       "sourceMapPathOverrides": {
         "../*": "${webRoot}/*"
+      }
     }
   ]
 }
