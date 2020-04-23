@@ -10,10 +10,10 @@ export default class Building {
 
   constructor(height = 5, rootSelector: string) {
     // setting initial properties
+    this.setElevator(new Elevator(this));
     this.setHeightInFloors(height);
     this.setQueue([]);
     this.setFoundationNode(rootSelector);
-    this.setElevator(new Elevator());
 
     this.start();
   }
@@ -47,16 +47,13 @@ export default class Building {
   }
 
   setQueue(value: number[]) {
-    const withoutRepeated = value.reduce(
-      (total, current) =>
-        total.includes(current) ? total : [...total, current],
-      []
-    );
-
-    const sorted = withoutRepeated.sort((a, b) => (a > b ? 1 : -1));
-
-    this.queue = sorted;
+    console.log(value);
+    this.queue = value;
   }
+
+  // removeFromQueue(attended: number) {
+  //   this.setQueue(this.getQueue().filter((floor) => floor !== attended));
+  // }
 
   setQueueWatcher(value: any) {
     this.queueWatcher = value;
@@ -79,7 +76,6 @@ export default class Building {
         this.getElevator().setMoving(true);
 
         const [nextFloor, ...remaining] = this.getQueue();
-        this.getElevator().calculateDirection(nextFloor);
         this.setQueue(remaining);
 
         console.log(
@@ -136,16 +132,18 @@ export default class Building {
         const callButtonElement = createElement("button", {
           className: "floor-button",
           dataset: {
-            floor: `${j}`,
+            floor: `${i}`,
+            desiredFloor: `${j}`,
           },
           addToElement: newFloorElement,
         });
         callButtonElement.innerText = `${!j ? "T" : j}`;
         callButtonElement.addEventListener("click", (e) => {
           const {
-            dataset: { floor },
+            dataset: { floor, desiredFloor },
           } = e.target as HTMLElement;
           this.pushElevatorButton(parseInt(floor, 10));
+          this.pushElevatorButton(parseInt(desiredFloor, 10));
         });
       }
 
@@ -156,6 +154,8 @@ export default class Building {
   }
 
   pushElevatorButton(floor: number) {
+    console.log("what");
+
     if (this.getElevator().getCurrentFloor() === floor) return;
     this.setQueue([...this.getQueue(), floor]);
   }

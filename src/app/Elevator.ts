@@ -1,14 +1,17 @@
 import { wait, qsAll, qs } from "./helpers";
+import Building from "./Building";
 
 export default class Elevator {
   currentFloor: number;
   moving: boolean;
   direction: "up" | "down";
+  building: Building;
 
-  constructor() {
+  constructor(building: Building) {
     this.currentFloor = 0;
     this.moving = false;
     this.direction = "up";
+    this.building = building;
   }
 
   getCurrentFloor(): number {
@@ -52,15 +55,26 @@ export default class Elevator {
     );
   }
 
-  async move(direction: "up" | "down") {
+  async move() {
+    this.closeAllDoors();
+
     const nextFloor =
-      direction === "up"
+      this.getDirection() === "up"
         ? this.getCurrentFloor() + 1
         : this.getCurrentFloor() - 1;
 
+    this.setCurrentFloor(nextFloor);
+
+    if (this.building.getQueue().includes(nextFloor)) {
+      await this.waitForPeopleToGetOff();
+      this.openDoorOnCurrentFloor();
+    }
+
     await wait(1500);
 
-    this.setCurrentFloor(nextFloor);
+    // this.building.setQueue(
+    //   this.building.getQueue().filter((floor) => floor !== nextFloor)
+    // );
   }
 
   async waitForPeopleToGetOff() {
@@ -68,20 +82,9 @@ export default class Elevator {
   }
 
   async travelTo(desiredFloor: number) {
-    this.closeAllDoors();
-
-    if (desiredFloor > this.getCurrentFloor()) {
-      while (desiredFloor > this.getCurrentFloor()) {
-        await this.move("up");
-      }
+    this.calculateDirection(desiredFloor);
+    while (desiredFloor !== this.getCurrentFloor()) {
+      await this.move();
     }
-    if (desiredFloor < this.getCurrentFloor()) {
-      while (desiredFloor < this.getCurrentFloor()) {
-        await this.move("down");
-      }
-    }
-
-    this.openDoorOnCurrentFloor();
-    await this.waitForPeopleToGetOff();
   }
 }
