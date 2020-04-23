@@ -1,3 +1,10 @@
+declare global {
+  interface Window {
+    populate: (queue: number[]) => any;
+    goTo: (floor: number) => any;
+  }
+}
+
 import Building from "./Building";
 
 const DEFAULT_HEIGHT_IN_FLOORS = 5;
